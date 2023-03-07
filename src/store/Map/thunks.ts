@@ -10,6 +10,7 @@ export const updateWebmap =
             // ...
 
             // now everything is ready and we can dispatch the new webmap Id to the reducer to trigger the state change
+            console.log('gregmregmroegmremog')
             dispatch(webmapIdChanged(webmapId));
         } catch (err) {
             console.error(err);
