@@ -1,25 +1,156 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { ErrorBoundary } from '../../components';
 import { fetchHouses } from '../../store/Table/thunks';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectHouses } from '../../store/Table/selectors';
+import { selectCharacters, selectHouses, selectBooks, selectCurrentSelection } from '../../store/Table/selectors';
+import {
+    useTable,
+    useFilters,
+    useSortBy,
+    usePagination
+} from 'react-table';
 
-const HomePage = () => {
+function Table() {
+
+    const houses = useSelector(selectHouses);
+    const characters = useSelector(selectCharacters);
+    const books = useSelector(selectBooks);
+    const currentSelection = useSelector(selectCurrentSelection);
+
+
+    const columns = [
+        {
+            Header: 'Name',
+            accessor: 'name',
+        },
+        {
+            Header: 'Region',
+            accessor: 'region',
+        },
+        {
+            Header: 'Words',
+            accessor: 'words',
+        },
+        {
+            Header: 'Current Lord',
+            accessor: 'currentLord.name',
+        },
+    ];
+
+    const tableData = useMemo(() => {
+        switch (currentSelection) {
+            case "houses":
+                return houses;
+            case "books":
+                return books;
+            case "characters":
+                return characters;
+            default:
+                return houses
+        }
+    }, [currentSelection, characters, houses, books])
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+    } = useTable({ columns, data: tableData, autoResetHiddenColumns:false })
+
+    return (
+        <table {...getTableProps()}>
+            <thead>
+                {
+                    headerGroups.map(headerGroup => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {
+                                headerGroup.headers.map(column => (
+                                    <th {...column.getHeaderProps()}>
+                                        {
+                                            column.render('Header')
+                                        }
+                                    </th>
+                                ))
+                            }
+                        </tr>
+                    ))
+                }
+            </thead>
+            <tbody {...getTableBodyProps()}>
+                { // loop over the rows
+                    rows.map(row => {
+                        prepareRow(row)
+                        return (
+                            <tr {...row.getRowProps()}>
+                                { // loop over the rows cells 
+                                    row.cells.map(cell => (
+                                        <td {...cell.getCellProps()}>
+                                            {cell.render('Cell')}
+                                        </td>
+                                    ))
+                                }
+                            </tr>
+                        )
+                    })
+                }
+                <tr>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    );
+}
+
+
+function HomePage() {
+    const [showProfile, setShowProfile] = useState(false);
+    const [showProfileURL, setShowProfileURL] = useState('');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [fetchOption, setFetchOption] = useState('houses');
+
     const dispatch = useDispatch();
 
     const houses = useSelector(selectHouses);
+    const characters = useSelector(selectCharacters);
+    const books = useSelector(selectBooks);
+
+    const handlePreviousClick = () => {
+        setCurrentPage((prevPage) => prevPage - 1);
+    };
+
+    const handleNextClick = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+    };
+
+    const handleFetchClick = (option: string) => {
+        setFetchOption(option);
+    };
 
 
     useEffect(() => {
         dispatch(fetchHouses());
-      }, []);
+    }, []);
+
+    // return (
+    //     <ErrorBoundary>
+    //         <h1>React Redux Boilerplate</h1>
+    //         <p>You can put the components of your app here</p>
+    //     </ErrorBoundary>
+    // );
+
 
     return (
-        <ErrorBoundary>
-            <h1>React Redux Boilerplate</h1>
-            <p>You can put the components of your app here</p>
-        </ErrorBoundary>
+        <>
+            <div>
+                <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
+                <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
+                <button onClick={() => handleFetchClick('houses')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Houses</button>
+            </div>
+            <Table />
+        </>
     );
 };
+
 
 export default HomePage;
