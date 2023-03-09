@@ -18,5 +18,11 @@ export const selectBooks = createSelector(
 
 export const selectCurrentSelection = createSelector(
     (state: RootState) => state.Table.currentSelection,
-    (books) => books
+    (currentSelection) => currentSelection
 );
+
+export const selectCurrentProfile = createSelector(
+    (state: RootState) => state.Table.currentProfile,
+    (currentProfile) => currentProfile
+);
+

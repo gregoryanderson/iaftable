@@ -10,7 +10,8 @@ export type TableState = {
     houses?: Array<object>,
     characters?: Array<object>,
     books?: Array<object>,
-    currentSelection?: string
+    currentSelection?: string,
+    currentProfile?: string
 };
 
 export const initialTableState: TableState = {
@@ -18,8 +19,9 @@ export const initialTableState: TableState = {
     isLoading: false,
     houses: [],
     characters: [],
-    books: [], 
-    currentSelection: "houses"
+    books: [],
+    currentSelection: "",
+    currentProfile: ""
 };
 
 const slice = createSlice({
@@ -35,11 +37,17 @@ const slice = createSlice({
         setBooks: (state, action: PayloadAction<object[]>) => {
             state.books = action.payload;
         },
+        setCurrentSelection: (state, action: PayloadAction<string>) => {
+            state.currentSelection = action.payload;
+        },
+        setCurrentProfile: (state, action: PayloadAction<string>) => {
+            state.currentProfile = action.payload;
+        },
     },
 });
 
 const { reducer } = slice;
 
-export const { setHouses, setCharacters, setBooks } = slice.actions;
+export const { setHouses, setCharacters, setBooks, setCurrentSelection, setCurrentProfile } = slice.actions;
 
 export default reducer;

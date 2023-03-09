@@ -2,13 +2,19 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { ErrorBoundary } from '../../components';
 import { fetchHouses } from '../../store/Table/thunks';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectCharacters, selectHouses, selectBooks, selectCurrentSelection } from '../../store/Table/selectors';
+import { selectCharacters, selectHouses, selectBooks, selectCurrentSelection, selectCurrentProfile } from '../../store/Table/selectors';
 import {
     useTable,
     useFilters,
     useSortBy,
-    usePagination
+    usePagination,
+    Row,
+    Cell
 } from 'react-table';
+import { setCurrentProfile } from '../../store/Table/reducer';
+import Profile from '../../components/Profile';
+
+
 
 function Table() {
 
@@ -16,6 +22,13 @@ function Table() {
     const characters = useSelector(selectCharacters);
     const books = useSelector(selectBooks);
     const currentSelection = useSelector(selectCurrentSelection);
+
+    const dispatch = useDispatch();
+
+
+    const handleClick = (row: Row) => {
+        dispatch(setCurrentProfile(row.values.currentLord))
+    }
 
 
     const columns = [
@@ -33,7 +46,12 @@ function Table() {
         },
         {
             Header: 'Current Lord',
-            accessor: 'currentLord.name',
+            accessor: 'currentLordName',
+        },
+        {
+            Header: 'Current Lord URL',
+            accessor: 'currentLord',
+            show: false,
         },
     ];
 
@@ -56,7 +74,7 @@ function Table() {
         headerGroups,
         rows,
         prepareRow,
-    } = useTable({ columns, data: tableData, autoResetHiddenColumns:false })
+    } = useTable({ columns, data: tableData, autoResetHiddenColumns: false })
 
     return (
         <table {...getTableProps()}>
@@ -85,7 +103,7 @@ function Table() {
                             <tr {...row.getRowProps()}>
                                 { // loop over the rows cells 
                                     row.cells.map(cell => (
-                                        <td {...cell.getCellProps()}>
+                                        <td {...cell.getCellProps()} onClick={() => handleClick(row)}>
                                             {cell.render('Cell')}
                                         </td>
                                     ))
@@ -114,6 +132,8 @@ function HomePage() {
     const houses = useSelector(selectHouses);
     const characters = useSelector(selectCharacters);
     const books = useSelector(selectBooks);
+    const currentProfile = useSelector(selectCurrentProfile);
+
 
     const handlePreviousClick = () => {
         setCurrentPage((prevPage) => prevPage - 1);
@@ -142,6 +162,7 @@ function HomePage() {
 
     return (
         <>
+            {currentProfile && <Profile />}
             <div>
                 <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
                 <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
