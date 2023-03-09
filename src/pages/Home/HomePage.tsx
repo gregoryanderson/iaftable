@@ -9,21 +9,38 @@ import {
     useSortBy,
     usePagination,
     Row,
-    Cell
+    Cell,
+    useGlobalFilter
 } from 'react-table';
 import { setCurrentProfile } from '../../store/Table/reducer';
 import Profile from '../../components/Profile';
 
 
 
-function Table() {
+function HomePage() {
+
+    const [currentPage, setCurrentPage] = useState(0);
+    const [fetchOption, setFetchOption] = useState('houses');
+
+    const dispatch = useDispatch();
 
     const houses = useSelector(selectHouses);
     const characters = useSelector(selectCharacters);
     const books = useSelector(selectBooks);
+    const currentProfile = useSelector(selectCurrentProfile);;
     const currentSelection = useSelector(selectCurrentSelection);
 
-    const dispatch = useDispatch();
+    const handlePreviousClick = () => {
+        setCurrentPage((prevPage) => prevPage - 1);
+    };
+
+    const handleNextClick = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+    };
+
+    const handleFetchClick = (option: string) => {
+        setFetchOption(option);
+    };
 
 
     const handleClick = (row: Row) => {
@@ -32,6 +49,10 @@ function Table() {
 
 
     const columns = [
+        {
+            Header: 'Current Lord',
+            accessor: 'currentLordName',
+        },
         {
             Header: 'Name',
             accessor: 'name',
@@ -43,10 +64,6 @@ function Table() {
         {
             Header: 'Words',
             accessor: 'words',
-        },
-        {
-            Header: 'Current Lord',
-            accessor: 'currentLordName',
         },
         {
             Header: 'Current Lord URL',
@@ -68,96 +85,40 @@ function Table() {
         }
     }, [currentSelection, characters, houses, books])
 
+    const tableInstance = useTable(
+        { columns, data: tableData, autoResetHiddenColumns: false, initialState: { pageIndex: 0, pageSize: 5 } },
+        useFilters,
+        useGlobalFilter,
+        useSortBy,
+        usePagination,
+    )
+
     const {
         getTableProps,
         getTableBodyProps,
         headerGroups,
         rows,
         prepareRow,
-    } = useTable({ columns, data: tableData, autoResetHiddenColumns: false })
+        state,
+        page,
+        canPreviousPage,
+        canNextPage,
+        pageOptions,
+        pageCount,
+        gotoPage,
+        nextPage,
+        previousPage,
+        setPageSize,
+        globalFilter,
+        setGlobalFilter,
+    } = tableInstance
 
-    return (
-        <table {...getTableProps()}>
-            <thead>
-                {
-                    headerGroups.map(headerGroup => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
-                            {
-                                headerGroup.headers.map(column => (
-                                    <th {...column.getHeaderProps()}>
-                                        {
-                                            column.render('Header')
-                                        }
-                                    </th>
-                                ))
-                            }
-                        </tr>
-                    ))
-                }
-            </thead>
-            <tbody {...getTableBodyProps()}>
-                { // loop over the rows
-                    rows.map(row => {
-                        prepareRow(row)
-                        return (
-                            <tr {...row.getRowProps()}>
-                                { // loop over the rows cells 
-                                    row.cells.map(cell => (
-                                        <td {...cell.getCellProps()} onClick={() => handleClick(row)}>
-                                            {cell.render('Cell')}
-                                        </td>
-                                    ))
-                                }
-                            </tr>
-                        )
-                    })
-                }
-                <tr>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-    );
-}
-
-
-function HomePage() {
-    const [showProfile, setShowProfile] = useState(false);
-    const [showProfileURL, setShowProfileURL] = useState('');
-    const [currentPage, setCurrentPage] = useState(0);
-    const [fetchOption, setFetchOption] = useState('houses');
-
-    const dispatch = useDispatch();
-
-    const houses = useSelector(selectHouses);
-    const characters = useSelector(selectCharacters);
-    const books = useSelector(selectBooks);
-    const currentProfile = useSelector(selectCurrentProfile);
-
-
-    const handlePreviousClick = () => {
-        setCurrentPage((prevPage) => prevPage - 1);
-    };
-
-    const handleNextClick = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
-    };
-
-    const handleFetchClick = (option: string) => {
-        setFetchOption(option);
-    };
-
+    const { pageIndex, pageSize } = state;
 
     useEffect(() => {
         dispatch(fetchHouses());
     }, []);
 
-    // return (
-    //     <ErrorBoundary>
-    //         <h1>React Redux Boilerplate</h1>
-    //         <p>You can put the components of your app here</p>
-    //     </ErrorBoundary>
-    // );
 
 
     return (
@@ -168,7 +129,66 @@ function HomePage() {
                 <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
                 <button onClick={() => handleFetchClick('houses')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Houses</button>
             </div>
-            <Table />
+            <>
+                <input
+                    value={globalFilter || ''}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    placeholder={`Search all fields...`}
+                />
+                <table {...getTableProps()} className="table-fixed w-full">
+                    <thead>
+                        {
+                            headerGroups.map(headerGroup => (
+                                <tr {...headerGroup.getHeaderGroupProps()} className="bg-gray-50 border-b-2">
+                                    {
+                                        headerGroup.headers.map(column => (
+                                            <th {...column.getHeaderProps()} className="text-left px-4 py-2 w-1/3">
+                                                {
+                                                    column.render('Header')
+                                                }
+                                            </th>
+                                        ))
+                                    }
+                                </tr>
+                            ))
+                        }
+                    </thead>
+                    <tbody {...getTableBodyProps()}>
+                        { // loop over the rows
+                            rows.map((row, index) => {
+                                prepareRow(row)
+                                return (
+                                    <tr {...row.getRowProps()} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-gray-100' : ''}`}>
+                                        { // loop over the rows cells 
+                                            row.cells.map(cell => (
+                                                <td {...cell.getCellProps()} onClick={() => handleClick(row)} className="px-4 py-2">
+                                                    {cell.render('Cell')}
+                                                </td>
+                                            ))
+                                        }
+                                    </tr>
+                                )
+                            })
+                        }
+                        <tr>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>
+                    <button onClick={() => previousPage()} disabled={!canPreviousPage} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                        Previous
+                    </button>
+                    {pageOptions.map((pageIndex) => (
+                        <button key={pageIndex} onClick={() => gotoPage(pageIndex)} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                            {pageIndex + 1}
+                        </button>
+                    ))}
+                    <button onClick={() => nextPage()} disabled={!canNextPage} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                        Next
+                    </button>
+                </div>
+            </>
         </>
     );
 };

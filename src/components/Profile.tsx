@@ -30,12 +30,19 @@ function Profile() {
   }
 
   return (
-    <div>
-      <h1>{data.name}</h1>
-      <p>Gender: {data.gender}</p>
-      <p>Born: {data.born}</p>
-      <p>Culture: {data.culture}</p>
-      <button onClick={handleClick}>Back</button>
+    <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="md:flex">
+        <div className="p-8">
+          <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">{data.house}</div>
+          <a href="#" className="block mt-1 text-lg leading-tight font-medium text-black hover:underline">{data.name}</a>
+          <p className="mt-2 text-gray-500">{data.description}</p>
+          <div className="mt-4">
+            <a href="{data.twitter}" className="text-indigo-500 hover:text-indigo-600"><i className="fab fa-twitter"></i></a>
+            <a href="{data.facebook}" className="ml-3 text-indigo-500 hover:text-indigo-600"><i className="fab fa-facebook"></i></a>
+            <a href="{data.instagram}" className="ml-3 text-indigo-500 hover:text-indigo-600"><i className="fab fa-instagram"></i></a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
