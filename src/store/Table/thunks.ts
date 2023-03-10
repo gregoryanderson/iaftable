@@ -2,7 +2,7 @@ import { RootState, StoreDispatch, StoreGetState } from '../configureStore';
 import { setCharacters, setHouses, setBooks } from './reducer';
 
 export const fetchHouses =
-    () =>
+    (pageIndex:number) =>
         async (dispatch: StoreDispatch, getState: StoreGetState) => {
 
                 interface House {
@@ -12,28 +12,8 @@ export const fetchHouses =
                     founded: string;
                 }
 
-            //     try {
-            //         const response = await fetch("https://anapioficeandfire.com/api/houses");
-            //         const data: House[] = await response.json();
-            //         // const houseDetails = await Promise.all(
-            //         //     data.map(async (house: House) => {
-
-            //         //         if (house.currentLord !== "") {
-            //         //             const currentLordResponse = await fetch(house.currentLord);
-            //         //             const currentLordData = await currentLordResponse.json();
-            //         //             return { ...house, currentLord: currentLordData.name };
-            //         //         } else {
-            //         //             return { ...house, currentLord: "N/A" };
-            //         //         }
-            //         //     })
-            //         // );
-            //         setHouses(data);
-            //     } catch (error) {
-            //         console.log(error);
-            //     }
-
             try {
-                const response = await fetch('https://www.anapioficeandfire.com/api/houses');
+                const response = await fetch(`https://www.anapioficeandfire.com/api/houses?page=${pageIndex + 1}&pageSize=5`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -57,10 +37,10 @@ export const fetchHouses =
         };
 
 export const fetchCharacters =
-    () =>
+    (pageIndex:number) =>
         async (dispatch: StoreDispatch, getState: StoreGetState) => {
             try {
-                const response = await fetch('https://www.anapioficeandfire.com/api/characters');
+                const response = await fetch(`https://www.anapioficeandfire.com/api/characters?page=${pageIndex + 1}&pageSize=5`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -72,10 +52,10 @@ export const fetchCharacters =
         };
 
 export const fetchBooks =
-    () =>
+    (pageIndex:number) =>
         async (dispatch: StoreDispatch, getState: StoreGetState) => {
             try {
-                const response = await fetch('https://www.anapioficeandfire.com/api/books');
+                const response = await fetch(`https://www.anapioficeandfire.com/api/books?page=${pageIndex + 1}&pageSize=5`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

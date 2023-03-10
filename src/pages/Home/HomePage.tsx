@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ErrorBoundary } from '../../components';
-import { fetchHouses } from '../../store/Table/thunks';
+import { fetchHouses, fetchBooks, fetchCharacters } from '../../store/Table/thunks';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCharacters, selectHouses, selectBooks, selectCurrentSelection, selectCurrentProfile } from '../../store/Table/selectors';
 import {
@@ -19,7 +19,7 @@ import Profile from '../../components/Profile';
 
 function HomePage() {
 
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const [fetchOption, setFetchOption] = useState('houses');
 
     const dispatch = useDispatch();
@@ -31,11 +31,12 @@ function HomePage() {
     const currentSelection = useSelector(selectCurrentSelection);
 
     const handlePreviousClick = () => {
-        setCurrentPage((prevPage) => prevPage - 1);
+        setCurrentPage((currentPage) => currentPage - 1);
     };
 
     const handleNextClick = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
+        console.log({ currentPage })
+        setCurrentPage((currentPage) => currentPage + 1);
     };
 
     const handleFetchClick = (option: string) => {
@@ -116,8 +117,18 @@ function HomePage() {
     const { pageIndex, pageSize } = state;
 
     useEffect(() => {
-        dispatch(fetchHouses());
-    }, []);
+        if (fetchOption === 'houses') {
+            dispatch(fetchHouses(currentPage));
+        }
+
+        if (fetchOption === 'characters') {
+            dispatch(fetchCharacters(currentPage));
+        }
+
+        if (fetchOption === 'books') {
+            dispatch(fetchBooks(currentPage));
+        }
+    }, [currentPage, dispatch, fetchOption]);
 
 
 
@@ -176,15 +187,10 @@ function HomePage() {
                     </tbody>
                 </table>
                 <div>
-                    <button onClick={() => previousPage()} disabled={!canPreviousPage} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                    <button onClick={handlePreviousClick} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
                         Previous
                     </button>
-                    {pageOptions.map((pageIndex) => (
-                        <button key={pageIndex} onClick={() => gotoPage(pageIndex)} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
-                            {pageIndex + 1}
-                        </button>
-                    ))}
-                    <button onClick={() => nextPage()} disabled={!canNextPage} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                    <button onClick={handleNextClick} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
                         Next
                     </button>
                 </div>
