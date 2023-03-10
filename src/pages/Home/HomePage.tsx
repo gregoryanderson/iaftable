@@ -142,7 +142,7 @@ function HomePage() {
             </div>
             <>
                 <input
-                    value={globalFilter || ''}
+                    value={state.globalFilter || ''}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     placeholder={`Search all fields...`}
                 />
