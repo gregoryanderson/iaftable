@@ -131,7 +131,7 @@ function HomePage() {
         }
     }, [currentPage, dispatch, currentSelection]);
 
-
+    console.log('yo')
 
     return (
         <>
