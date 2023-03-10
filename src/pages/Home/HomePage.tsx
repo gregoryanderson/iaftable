@@ -7,12 +7,12 @@ import {
     useTable,
     useFilters,
     useSortBy,
-    usePagination,
+    // usePagination,
     Row,
     Cell,
     useGlobalFilter
 } from 'react-table';
-import { setCurrentProfile } from '../../store/Table/reducer';
+import { setCurrentProfile, setCurrentSelection } from '../../store/Table/reducer';
 import Profile from '../../components/Profile';
 
 
@@ -20,7 +20,6 @@ import Profile from '../../components/Profile';
 function HomePage() {
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [fetchOption, setFetchOption] = useState('houses');
 
     const dispatch = useDispatch();
 
@@ -35,12 +34,11 @@ function HomePage() {
     };
 
     const handleNextClick = () => {
-        console.log({ currentPage })
         setCurrentPage((currentPage) => currentPage + 1);
     };
 
     const handleFetchClick = (option: string) => {
-        setFetchOption(option);
+        dispatch(setCurrentSelection(option))
     };
 
 
@@ -48,30 +46,58 @@ function HomePage() {
         dispatch(setCurrentProfile(row.values.currentLord))
     }
 
+    const columns = useMemo(() => {
+        const commonColumns = [
+            {
+                Header: "Name",
+                accessor: "name"
+            }
+        ];
 
-    const columns = [
-        {
-            Header: 'Current Lord',
-            accessor: 'currentLordName',
-        },
-        {
-            Header: 'Name',
-            accessor: 'name',
-        },
-        {
-            Header: 'Region',
-            accessor: 'region',
-        },
-        {
-            Header: 'Words',
-            accessor: 'words',
-        },
-        {
-            Header: 'Current Lord URL',
-            accessor: 'currentLord',
-            show: false,
-        },
-    ];
+        const houseColumns = [
+            {
+                Header: "Words",
+                accessor: "words"
+            },
+            {
+                Header: 'Current Lord',
+                accessor: 'currentLordName',
+            },
+        ];
+
+        const bookColumns = [
+            {
+                Header: "Author",
+                accessor: "authors",
+            },
+            {
+                Header: "Pages",
+                accessor: "numberOfPages"
+            }
+        ];
+
+        const characterColumns = [
+            {
+                Header: "Gender",
+                accessor: "gender"
+            },
+            {
+                Header: "Aliases",
+                accessor: "aliases",
+            }
+        ];
+
+        switch (currentSelection) {
+            case "houses":
+                return [...commonColumns, ...houseColumns];
+            case "books":
+                return [...commonColumns, ...bookColumns];
+            case "characters":
+                return [...commonColumns, ...characterColumns];
+            default:
+                return [];
+        }
+    }, [currentSelection]);
 
     const tableData = useMemo(() => {
         switch (currentSelection) {
@@ -86,66 +112,42 @@ function HomePage() {
         }
     }, [currentSelection, characters, houses, books])
 
-    const tableInstance = useTable(
-        { columns, data: tableData, autoResetHiddenColumns: false, initialState: { pageIndex: 0, pageSize: 5 } },
-        useFilters,
-        useGlobalFilter,
-        useSortBy,
-        usePagination,
-    )
+    const tableInstance = useTable({ columns, data: tableData, autoResetHiddenColumns: false, initialState: { pageIndex: 0, pageSize: 5 } }, useFilters, useGlobalFilter, useSortBy)
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-        state,
-        page,
-        canPreviousPage,
-        canNextPage,
-        pageOptions,
-        pageCount,
-        gotoPage,
-        nextPage,
-        previousPage,
-        setPageSize,
-        globalFilter,
-        setGlobalFilter,
-    } = tableInstance
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state, setGlobalFilter } = tableInstance
 
-    const { pageIndex, pageSize } = state;
 
     useEffect(() => {
-        if (fetchOption === 'houses') {
+        if (currentSelection === 'houses') {
             dispatch(fetchHouses(currentPage));
         }
 
-        if (fetchOption === 'characters') {
+        if (currentSelection === 'characters') {
             dispatch(fetchCharacters(currentPage));
         }
 
-        if (fetchOption === 'books') {
+        if (currentSelection === 'books') {
             dispatch(fetchBooks(currentPage));
         }
-    }, [currentPage, dispatch, fetchOption]);
+    }, [currentPage, dispatch, currentSelection]);
 
 
 
     return (
         <>
             {currentProfile && <Profile />}
-            <div>
-                <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
-                <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
-                <button onClick={() => handleFetchClick('houses')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Houses</button>
-            </div>
-            <>
+            <div className="ml-4 overflow-x-scroll">
+                <div>
+                    <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
+                    <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
+                    <button onClick={() => handleFetchClick('houses')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Houses</button>
+                </div>
                 <input
                     value={state.globalFilter || ''}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     placeholder={`Search all fields...`}
                 />
+
                 <table {...getTableProps()} className="table-fixed w-full">
                     <thead>
                         {
@@ -194,7 +196,7 @@ function HomePage() {
                         Next
                     </button>
                 </div>
-            </>
+            </div>
         </>
     );
 };

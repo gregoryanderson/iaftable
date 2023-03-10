@@ -20,7 +20,7 @@ export const initialTableState: TableState = {
     houses: [],
     characters: [],
     books: [],
-    currentSelection: "",
+    currentSelection: "houses",
     currentProfile: ""
 };
 
