@@ -11,7 +11,7 @@ export type TableState = {
     characters?: Array<object>,
     books?: Array<object>,
     currentSelection?: string,
-    currentProfile?: string
+    currentProfile?: {}
 };
 
 export const initialTableState: TableState = {
@@ -21,7 +21,7 @@ export const initialTableState: TableState = {
     characters: [],
     books: [],
     currentSelection: "houses",
-    currentProfile: ""
+    currentProfile: {}
 };
 
 const slice = createSlice({

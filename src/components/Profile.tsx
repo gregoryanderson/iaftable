@@ -4,7 +4,7 @@ import { selectHouses, selectBooks, selectCurrentProfile } from '../store/Table/
 
 
 function Profile() {
-  const currentProfile = useSelector(selectCurrentProfile);
+  // const currentProfile = useSelector(selectCurrentProfile);
   console.log("maybe")
 
   const [data, setData] = useState(null);
@@ -15,14 +15,14 @@ function Profile() {
   }
 
 
-  useEffect(() => {
-    if (currentProfile !== '') {
-      fetch(currentProfile)
-        .then(response => response.json())
-        .then(data => setData(data))
-        .catch(error => console.error(error));
-    }
-  }, [currentProfile]);
+  // useEffect(() => {
+  //   if (currentProfile !== '') {
+  //     fetch(currentProfile)
+  //       .then(response => response.json())
+  //       .then(data => setData(data))
+  //       .catch(error => console.error(error));
+  //   }
+  // }, [currentProfile]);
 
 
   if (!data) {

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { ErrorBoundary } from '../../components';
 import { fetchHouses, fetchBooks, fetchCharacters } from '../../store/Table/thunks';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCharacters, selectHouses, selectBooks, selectCurrentSelection, selectCurrentProfile } from '../../store/Table/selectors';
@@ -7,26 +6,76 @@ import {
     useTable,
     useFilters,
     useSortBy,
-    // usePagination,
     Row,
     Cell,
     useGlobalFilter
 } from 'react-table';
-import { setCurrentProfile, setCurrentSelection } from '../../store/Table/reducer';
-import Profile from '../../components/Profile';
+import { setCurrentSelection } from '../../store/Table/reducer';
 
 
 
 function HomePage() {
 
+    interface CharacterProfile {
+        url: string;
+        name: string;
+        gender: string;
+        culture: string;
+        born: string;
+        died: string;
+        titles: string[];
+        aliases: string[];
+        allegiances: string[];
+        books: string[];
+        povBooks: string[];
+        tvSeries: string[];
+        playedBy: string[];
+        house: string;
+        description: string
+    }
+
+    type HouseProfile = {
+        url: string;
+        name: string;
+        region: string;
+        coatOfArms: string;
+        words: string;
+        titles: string[];
+        seats: string[];
+        currentLord: string;
+        heir: string;
+        overlord: string;
+        founded: string;
+        founder: string;
+        diedOut: string;
+        ancestralWeapons: string[];
+        cadetBranches: string[];
+        swornMembers: string[];
+        currentLordName: string;
+    }
+
+    type BookProfile = {
+        url: string;
+        name: string;
+        authors: string[];
+        numberOfPages: number;
+        publisher: string;
+        country: string;
+        mediaType: string;
+        released: string;
+        characters: string[];
+        povCharacters: string[];
+    }
+
     const [currentPage, setCurrentPage] = useState(1);
+    const [showProfile, setShowProfile] = useState(false);
+    const [currentProfile, setCurrentProfile] = useState<HouseProfile | null>(null)
 
     const dispatch = useDispatch();
 
     const houses = useSelector(selectHouses);
     const characters = useSelector(selectCharacters);
     const books = useSelector(selectBooks);
-    const currentProfile = useSelector(selectCurrentProfile);;
     const currentSelection = useSelector(selectCurrentSelection);
 
     const handlePreviousClick = () => {
@@ -41,9 +90,27 @@ function HomePage() {
         dispatch(setCurrentSelection(option))
     };
 
-
     const handleClick = (row: Row) => {
-        dispatch(setCurrentProfile(row.values.currentLord))
+        setShowProfile(true)
+        setCurrentProfile({
+            name: row.values.name,
+            words: row.values.words,
+            currentLordName: row.values.currentLordName,
+            url: row.values.url,
+            region: row.values.region,
+            coatOfArms: row.values.coatOfArms,
+            titles: row.values.titles,
+            seats: row.values.seats,
+            currentLord: row.values.currentLordName,
+            heir: row.values.heir,
+            overlord: row.values.overlord,
+            founded: row.values.founded,
+            founder: row.values.founder,
+            diedOut: row.values.diedOut,
+            ancestralWeapons: row.values.ancestralWeapons,
+            cadetBranches: row.values.cadetBranches,
+            swornMembers: row.values.swornMembers,
+        })
     }
 
     const columns = useMemo(() => {
@@ -63,6 +130,58 @@ function HomePage() {
                 Header: 'Current Lord',
                 accessor: 'currentLordName',
             },
+            {
+                Header: "URL",
+                accessor: "url"
+            },
+            {
+                Header: 'Region',
+                accessor: 'region',
+            },
+            {
+                Header: "Coat of Arms",
+                accessor: "coatOfArms"
+            },
+            {
+                Header: 'Titles',
+                accessor: 'titles',
+            },
+            {
+                Header: "Seats",
+                accessor: "seats"
+            },
+            {
+                Header: 'Heir',
+                accessor: 'heir',
+            },
+            {
+                Header: "Overlord",
+                accessor: "overlord"
+            },
+            {
+                Header: 'Founded',
+                accessor: 'founded',
+            },
+            {
+                Header: "Founder",
+                accessor: "founder"
+            },
+            {
+                Header: 'Died Out',
+                accessor: 'diedOut',
+            },
+            {
+                Header: "Weapons",
+                accessor: "ancestralWeapons"
+            },
+            {
+                Header: 'Cadet Branches',
+                accessor: 'cadetBranches',
+            },
+            {
+                Header: 'Sworn Members',
+                accessor: 'swornMembers',
+            }
         ];
 
         const bookColumns = [
@@ -112,7 +231,7 @@ function HomePage() {
         }
     }, [currentSelection, characters, houses, books])
 
-    const tableInstance = useTable({ columns, data: tableData, autoResetHiddenColumns: false, initialState: { pageIndex: 0, pageSize: 5 } }, useFilters, useGlobalFilter, useSortBy)
+    const tableInstance = useTable({ columns, data: tableData, autoResetHiddenColumns: false, initialState: { pageIndex: 0, pageSize: 5, hiddenColumns: ['url', 'swornMembers', 'cadetBranches', 'coatOfArms', 'heir', 'overlord', 'founder', 'ancestralWeapons', 'diedOut'] } }, useFilters, useGlobalFilter, useSortBy)
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state, setGlobalFilter } = tableInstance
 
@@ -131,11 +250,26 @@ function HomePage() {
         }
     }, [currentPage, dispatch, currentSelection]);
 
-    console.log('yo')
-
     return (
         <>
-            {currentProfile && <Profile />}
+            {showProfile && <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+                <button
+                    onClick={() => setShowProfile(false)}
+                    className="inline-flex items-center justify-center rounded-full w-8 h-8 text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-300"
+                >
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <div className="md:flex">
+                    <div className="p-8">
+                        <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">{currentProfile.name}</div>
+                        <a href="#" className="block mt-1 text-lg leading-tight font-medium text-black hover:underline">{currentProfile.currentLordName}</a>
+                        <p className="mt-2 text-gray-500">{currentProfile.coatOfArms}</p>
+                        <p className="mt-2 text-gray-500">{currentProfile.region}</p>
+                    </div>
+                </div>
+            </div>}
             <div className="ml-4 overflow-x-scroll">
                 <div>
                     <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
