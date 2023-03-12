@@ -7,65 +7,12 @@ import {
     useFilters,
     useSortBy,
     Row,
-    Cell,
     useGlobalFilter
 } from 'react-table';
 import { setCurrentSelection } from '../../store/Table/reducer';
 
 
-
 function HomePage() {
-
-    interface CharacterProfile {
-        url: string;
-        name: string;
-        gender: string;
-        culture: string;
-        born: string;
-        died: string;
-        titles: string[];
-        aliases: string[];
-        allegiances: string[];
-        books: string[];
-        povBooks: string[];
-        tvSeries: string[];
-        playedBy: string[];
-        house: string;
-        description: string
-    }
-
-    type HouseProfile = {
-        url: string;
-        name: string;
-        region: string;
-        coatOfArms: string;
-        words: string;
-        titles: string[];
-        seats: string[];
-        currentLord: string;
-        heir: string;
-        overlord: string;
-        founded: string;
-        founder: string;
-        diedOut: string;
-        ancestralWeapons: string[];
-        cadetBranches: string[];
-        swornMembers: string[];
-        currentLordName: string;
-    }
-
-    type BookProfile = {
-        url: string;
-        name: string;
-        authors: string[];
-        numberOfPages: number;
-        publisher: string;
-        country: string;
-        mediaType: string;
-        released: string;
-        characters: string[];
-        povCharacters: string[];
-    }
 
     const [currentPage, setCurrentPage] = useState(1);
     const [showProfile, setShowProfile] = useState(false);
@@ -115,13 +62,14 @@ function HomePage() {
 
     const columns = useMemo(() => {
         const commonColumns = [
-            {
-                Header: "Name",
-                accessor: "name"
-            }
+
         ];
 
         const houseColumns = [
+            {
+                Header: "Name",
+                accessor: "name"
+            },
             {
                 Header: "Words",
                 accessor: "words"
@@ -186,6 +134,10 @@ function HomePage() {
 
         const bookColumns = [
             {
+                Header: "Name",
+                accessor: "name"
+            },
+            {
                 Header: "Author",
                 accessor: "authors",
             },
@@ -196,6 +148,10 @@ function HomePage() {
         ];
 
         const characterColumns = [
+            {
+                Header: "Name",
+                accessor: "name"
+            },
             {
                 Header: "Gender",
                 accessor: "gender"
@@ -208,11 +164,11 @@ function HomePage() {
 
         switch (currentSelection) {
             case "houses":
-                return [...commonColumns, ...houseColumns];
+                return [...houseColumns];
             case "books":
-                return [...commonColumns, ...bookColumns];
+                return [...bookColumns];
             case "characters":
-                return [...commonColumns, ...characterColumns];
+                return [...characterColumns];
             default:
                 return [];
         }

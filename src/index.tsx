@@ -8,7 +8,7 @@ import configureAppStore, { getPreloadedState } from './store/configureStore';
 
 import AppContextProvider from './contexts/AppContextProvider';
 
-import { DemoPage, HomePage } from './pages';
+import { HomePage } from './pages';
 
 (async () => {
     const preloadedState = getPreloadedState();
