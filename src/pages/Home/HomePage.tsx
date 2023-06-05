@@ -61,9 +61,6 @@ function HomePage() {
     }
 
     const columns = useMemo(() => {
-        const commonColumns = [
-
-        ];
 
         const houseColumns = [
             {
@@ -226,67 +223,76 @@ function HomePage() {
                     </div>
                 </div>
             </div>}
-            <div className="ml-4 overflow-x-scroll">
-                <div>
-                    <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
-                    <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
-                    <button onClick={() => handleFetchClick('houses')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Houses</button>
+            {!showProfile && <div className="ml-4 overflow-x-scroll">
+                <div className="flex justify-center items-center">
+                    <div className="p-4">
+                        <button onClick={() => handleFetchClick('books')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Books</button>
+                        <button onClick={() => handleFetchClick('characters')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Characters</button>
+                        <button onClick={() => handleFetchClick('houses')} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">Houses</button>
+                    </div>
                 </div>
-                <input
-                    value={state.globalFilter || ''}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    placeholder={`Search all fields...`}
-                />
-
-                <table {...getTableProps()} className="table-fixed w-full">
-                    <thead>
-                        {
-                            headerGroups.map(headerGroup => (
-                                <tr {...headerGroup.getHeaderGroupProps()} className="bg-gray-50 border-b-2">
-                                    {
-                                        headerGroup.headers.map(column => (
-                                            <th {...column.getHeaderProps()} className="text-left px-4 py-2 w-1/3">
-                                                {
-                                                    column.render('Header')
+                <div className="flex justify-center items-center">
+                    <div className="p-12">
+                        <div className="mb-4">
+                            <input
+                                value={state.globalFilter || ''}
+                                onChange={(e) => setGlobalFilter(e.target.value)}
+                                placeholder={`Search all fields...`}
+                            />
+                        </div>
+                        <table {...getTableProps()} className="table-fixed w-full">
+                            <thead>
+                                {
+                                    headerGroups.map(headerGroup => (
+                                        <tr {...headerGroup.getHeaderGroupProps()} className="bg-gray-50 border-b-2">
+                                            {
+                                                headerGroup.headers.map(column => (
+                                                    <th {...column.getHeaderProps()} className="text-left px-4 py-2 w-1/3">
+                                                        {
+                                                            column.render('Header')
+                                                        }
+                                                    </th>
+                                                ))
+                                            }
+                                        </tr>
+                                    ))
+                                }
+                            </thead>
+                            <tbody {...getTableBodyProps()}>
+                                { // loop over the rows
+                                    rows.map((row, index) => {
+                                        prepareRow(row)
+                                        return (
+                                            <tr {...row.getRowProps()} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-gray-100' : ''}`}>
+                                                { // loop over the rows cells 
+                                                    row.cells.map(cell => (
+                                                        <td {...cell.getCellProps()} onClick={() => handleClick(row)} className="px-4 py-2">
+                                                            {cell.render('Cell')}
+                                                        </td>
+                                                    ))
                                                 }
-                                            </th>
-                                        ))
-                                    }
+                                            </tr>
+                                        )
+                                    })
+                                }
+                                <tr>
+                                    <td></td>
                                 </tr>
-                            ))
-                        }
-                    </thead>
-                    <tbody {...getTableBodyProps()}>
-                        { // loop over the rows
-                            rows.map((row, index) => {
-                                prepareRow(row)
-                                return (
-                                    <tr {...row.getRowProps()} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-gray-100' : ''}`}>
-                                        { // loop over the rows cells 
-                                            row.cells.map(cell => (
-                                                <td {...cell.getCellProps()} onClick={() => handleClick(row)} className="px-4 py-2">
-                                                    {cell.render('Cell')}
-                                                </td>
-                                            ))
-                                        }
-                                    </tr>
-                                )
-                            })
-                        }
-                        <tr>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div>
-                    <button onClick={handlePreviousClick} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
-                        Previous
-                    </button>
-                    <button onClick={handleNextClick} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
-                        Next
-                    </button>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+                <div className="flex justify-center items-center">
+                    <div className="p-4">
+                        <button onClick={handlePreviousClick} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                            Previous
+                        </button>
+                        <button onClick={handleNextClick} className="bg-purple-500 text-white px-2 py-1 rounded-md mr-2 mb-2">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>}
         </>
     );
 };
